@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
     private lateinit var txtStatus: TextView
+    private lateinit var txtDecibel: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +26,11 @@ class MainActivity : AppCompatActivity() {
         btnStart = findViewById(R.id.btn_start)
         btnStop = findViewById(R.id.btn_stop)
         txtStatus = findViewById(R.id.txt_status)
+        txtDecibel = findViewById(R.id.txt_decibel)
 
         requestPermissions()
 
+        // Observe LiveData
         viewModel.isRecording.observe(this, Observer { isRecording ->
             if (isRecording) {
                 txtStatus.text = "Recording..."
@@ -38,6 +41,10 @@ class MainActivity : AppCompatActivity() {
                 btnStart.visibility = Button.VISIBLE
                 btnStop.visibility = Button.GONE
             }
+        })
+
+        viewModel.decibelLevel.observe(this, Observer { decibel ->
+            txtDecibel.text = "Decibel Level: ${decibel.toInt()} dB"
         })
 
         btnStart.setOnClickListener { viewModel.startRecording(this) }

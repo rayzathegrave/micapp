@@ -1,10 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".MainActivity">
+    android:padding="20dp">
 
     <Button
         android:id="@+id/btn_start"
@@ -24,5 +23,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Press Start to Record"
+        android:paddingTop="20dp"/>
+
+    <TextView
+        android:id="@+id/txt_decibel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decibel Level: 0 dB"
+        android:textSize="18sp"
         android:paddingTop="20dp"/>
 </LinearLayout>
