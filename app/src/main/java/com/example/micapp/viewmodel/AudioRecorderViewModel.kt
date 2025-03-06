@@ -1,11 +1,15 @@
 package com.example.micapp.viewmodel
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,13 +27,14 @@ class AudioRecorderViewModel : ViewModel() {
     val decibelLevel: LiveData<Float> get() = _decibelLevel
 
     private var outputFilePath: String? = null
-    private var isRecordingDecibels = false
+    private var audioRecord: AudioRecord? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     fun startRecording(context: Context) {
         val outputDir = context.getExternalFilesDir(null)
         outputFilePath = File(outputDir, "recorded_audio.3gp").absolutePath
 
-        mediaRecorder = MediaRecorder().apply {
+        mediaRecorder = MediaRecorder(context).apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
@@ -39,7 +44,7 @@ class AudioRecorderViewModel : ViewModel() {
                 prepare()
                 start()
                 _isRecording.postValue(true)
-                startDecibelMeter()
+                startDecibelMeter(context)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -49,14 +54,20 @@ class AudioRecorderViewModel : ViewModel() {
     fun stopRecording() {
         mediaRecorder?.apply {
             stop()
+            reset()
             release()
         }
         mediaRecorder = null
         _isRecording.postValue(false)
-        isRecordingDecibels = false
+
+        audioRecord?.apply {
+            stop()
+            release()
+        }
+        audioRecord = null
     }
 
-    private fun startDecibelMeter() {
+    private fun startDecibelMeter(context: Context) {
         val sampleRate = 44100
         val bufferSize = AudioRecord.getMinBufferSize(
             sampleRate,
@@ -64,33 +75,53 @@ class AudioRecorderViewModel : ViewModel() {
             AudioFormat.ENCODING_PCM_16BIT
         )
 
-        val audioRecord = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            sampleRate,
-            AudioFormat.CHANNEL_IN_MONO,
-            AudioFormat.ENCODING_PCM_16BIT,
-            bufferSize
-        )
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            audioRecord = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                sampleRate,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSize
+            )
 
-        audioRecord.startRecording()
-        isRecordingDecibels = true
+            try {
+                audioRecord?.startRecording()
 
-        Thread {
-            val buffer = ShortArray(bufferSize)
-            while (isRecordingDecibels) {
-                val read = audioRecord.read(buffer, 0, buffer.size)
-                val amplitude = buffer.take(read).map { it.toDouble() * it.toDouble() }
-                val rms = sqrt(amplitude.average())
-                val decibel = 20 * log10(rms)
+                handler.post(object : Runnable {
+                    override fun run() {
+                        val buffer = ShortArray(bufferSize)
+                        val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
 
-                _decibelLevel.postValue(decibel.toFloat())
-                Log.d("DecibelMeter", "Decibel Level: $decibel dB")
+                        if (read > 0) {
+                            val amplitude = buffer.take(read).map { it.toDouble() * it.toDouble() }
+                            val rms = sqrt(amplitude.average())
+                            var decibel = 20 * log10(rms)
 
-                Thread.sleep(500)
+                            if (decibel < 0) {
+                                decibel = 0.0
+                            }
+
+                            _decibelLevel.postValue(decibel.toFloat())
+                            Log.d("DecibelMeter", "Decibel Level: $decibel dB")
+                        }
+
+                        if (_isRecording.value == true) {
+                            handler.postDelayed(this, 500)
+                        }
+                    }
+                })
+            } catch (e: SecurityException) {
+                Log.e("DecibelMeter", "Permission denied for recording audio", e)
             }
-            audioRecord.stop()
-            audioRecord.release()
-        }.start()
+        } else {
+            Log.e("DecibelMeter", "RECORD_AUDIO permission not granted")
+        }
+    }
+
+    fun updateRecording(context: Context, newFileName: String) {
+        stopRecording()
+        outputFilePath = File(context.getExternalFilesDir(null), newFileName).absolutePath
+        startRecording(context)
     }
 
     fun writeAudioFileExternalStorage(context: Context, audioData: ByteArray, filename: String) {
