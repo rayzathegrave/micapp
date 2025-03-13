@@ -22,8 +22,8 @@
         android:id="@+id/txt_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Press Start to Record"
-        android:paddingTop="20dp"/>
+        android:paddingTop="20dp"
+        android:text="Press Start to Record" />
 
     <TextView
         android:id="@+id/txt_decibel"
@@ -32,4 +32,23 @@
         android:text="Decibel Level: 0 dB"
         android:textSize="18sp"
         android:paddingTop="20dp"/>
+
+    <!-- New Save Reading Button -->
+
+    <!-- New Customize Button -->
+    <Button
+        android:id="@+id/btn_save_reading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:text="Save Reading" />
+
+    <Button
+        android:id="@+id/btn_customize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Customize"
+        android:paddingTop="10dp"/>
+
 </LinearLayout>
+

@@ -28,6 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="com.example.micapp.ui.SaveReadingActivity" />
+        <activity android:name="com.example.micapp.ui.CustomizeActivity" />
+
+
     </application>
 
 </manifest>
