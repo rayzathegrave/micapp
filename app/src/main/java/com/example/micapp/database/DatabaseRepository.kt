@@ -35,6 +35,36 @@ class DatabaseRepository(context: Context) {
         db.insert(DatabaseHelper.TABLE_SAVED_READING, null, values)
     }
 
+    fun getCategories(): List<String> {
+        val categories = mutableListOf<String>()
+        val cursor: Cursor = db.query(
+            DatabaseHelper.TABLE_ADD_CATEGORY,
+            arrayOf("category"),
+            null, null, null, null, null
+        )
+        while (cursor.moveToNext()) {
+            categories.add(cursor.getString(cursor.getColumnIndexOrThrow("category")))
+        }
+        cursor.close()
+        return categories
+    }
+
+    fun getLocations(): List<String> {
+        val locations = mutableListOf<String>()
+        val cursor: Cursor = db.query(
+            DatabaseHelper.TABLE_ADD_ADRES,
+            arrayOf("streetname", "housenumber"),
+            null, null, null, null, null
+        )
+        while (cursor.moveToNext()) {
+            val street = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
+            val houseNum = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
+            locations.add("$street $houseNum")
+        }
+        cursor.close()
+        return locations
+    }
+
     fun getSavedReadings(): Cursor {
         return db.query(DatabaseHelper.TABLE_SAVED_READING, null, null, null, null, null, null)
     }

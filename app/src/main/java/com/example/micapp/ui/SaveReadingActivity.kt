@@ -2,18 +2,19 @@ package com.example.micapp.ui
 
 import android.os.Bundle
 import android.widget.*
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micapp.R
-import com.example.micapp.viewmodel.AudioRecorderViewModel
+import com.example.micapp.database.DatabaseRepository
 
 class SaveReadingActivity : AppCompatActivity() {
 
-    private val viewModel: AudioRecorderViewModel by viewModels()
+    private lateinit var repository: DatabaseRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_save_reading)
+
+        repository = DatabaseRepository(this)
 
         val txtLastReading: TextView = findViewById(R.id.txt_last_reading)
         val spinnerLocation: Spinner = findViewById(R.id.spinner_location)
@@ -24,10 +25,10 @@ class SaveReadingActivity : AppCompatActivity() {
         val lastReading = intent.getStringExtra("DECIBEL_READING") ?: "No data"
         txtLastReading.text = "Last Reading: $lastReading"
 
-        // Dummy data for spinners
-        val locations = listOf("korte helster 114", "velperweg 74", "vulkanstase 12")
-        val categories = listOf("party noise", "car noise", "other")
-        val timestamps = listOf("morning", "afternoon", "evening", "night")
+        // Fetch data from database
+        val locations = repository.getLocations()
+        val categories = repository.getCategories()
+        val timestamps = listOf("morning", "afternoon", "evening", "night") // Assuming timestamps are still hardcoded
 
         spinnerLocation.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locations)
         spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
@@ -38,16 +39,32 @@ class SaveReadingActivity : AppCompatActivity() {
             val selectedCategory = spinnerCategory.selectedItem.toString()
             val selectedTimestamp = spinnerTimestamp.selectedItem.toString()
 
+            val (streetname, housenumber) = selectedLocation.split(" ").let {
+                it[0] to it[1].toInt()
+            }
+
+            // Extract integer from lastReading
+            val decibelReading = lastReading.filter { it.isDigit() }.toIntOrNull()
+            if (decibelReading == null) {
+                Toast.makeText(this, "Invalid decibel reading", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             // Save reading to database
-            viewModel.saveReading(
-                lastReading.toInt(),
+            repository.insertSavedReading(
+                decibelReading,
                 selectedCategory,
-                selectedLocation,
-                0, // Assuming housenumber is not used in this context
+                streetname,
+                housenumber,
                 selectedTimestamp
             )
 
             Toast.makeText(this, "Saved: $selectedLocation, $selectedCategory, $selectedTimestamp", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        repository.close()
     }
 }
