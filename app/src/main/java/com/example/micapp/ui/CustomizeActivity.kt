@@ -19,34 +19,34 @@ class CustomizeActivity : AppCompatActivity() {
         val edtStreetName: EditText = findViewById(R.id.edt_street_name)
         val edtHouseNumber: EditText = findViewById(R.id.edt_house_number)
         val btnSave: Button = findViewById(R.id.btn_save)
-//        val btnLoad: Button = findViewById(R.id.btn_load)
+
+        // Set input type for house number to number
+        edtHouseNumber.inputType = android.text.InputType.TYPE_CLASS_NUMBER
 
         btnSave.setOnClickListener {
             val newCategory = edtCategory.text.toString().trim()
             val newStreetName = edtStreetName.text.toString().trim()
             val houseNumberText = edtHouseNumber.text.toString().trim()
 
-            if (newCategory.isEmpty() || newStreetName.isEmpty() || houseNumberText.isEmpty()) {
-                Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
+            if ((newStreetName.isNotEmpty() && houseNumberText.isEmpty()) || (newStreetName.isEmpty() && houseNumberText.isNotEmpty())) {
+                Toast.makeText(this, "Please enter both street name and house number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val houseNumber = houseNumberText.toIntOrNull()
-            if (houseNumber == null) {
-                Toast.makeText(this, "House number must be a valid number", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            if (newCategory.isNotEmpty()) {
+                viewModel.addCategory(newCategory)
             }
 
-            viewModel.addCategory(newCategory)
-            viewModel.addLocation(newStreetName, houseNumber)
-            Toast.makeText(this, "Saved: $newCategory, $newStreetName, $houseNumber", Toast.LENGTH_SHORT).show()
+            if (newStreetName.isNotEmpty() && houseNumberText.isNotEmpty()) {
+                val houseNumber = houseNumberText.toIntOrNull()
+                if (houseNumber == null) {
+                    Toast.makeText(this, "House number must be a valid number", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                viewModel.addLocation(newStreetName, houseNumber)
+            }
+
+            Toast.makeText(this, "Saved: $newCategory, $newStreetName, $houseNumberText", Toast.LENGTH_SHORT).show()
         }
-
-//        btnLoad.setOnClickListener {
-//            val categories = viewModel.getCategories()
-//            val locations = viewModel.getLocations()
-//
-//            Toast.makeText(this, "Categories: $categories\nLocations: $locations", Toast.LENGTH_LONG).show()
-//        }
     }
 }

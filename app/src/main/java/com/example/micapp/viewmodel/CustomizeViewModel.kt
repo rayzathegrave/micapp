@@ -17,26 +17,14 @@ class CustomizeViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getCategories(): List<String> {
-        val cursor = repository.getSavedReadings()
-        val categories = mutableListOf<String>()
-
-        while (cursor.moveToNext()) {
-            categories.add(cursor.getString(cursor.getColumnIndexOrThrow("category")))
-        }
-        cursor.close()
+        val readings = repository.getSavedReadings()
+        val categories = readings.map { it.category }.distinct()
         return categories
     }
 
     fun getLocations(): List<String> {
-        val cursor = repository.getSavedReadings()
-        val locations = mutableListOf<String>()
-
-        while (cursor.moveToNext()) {
-            val street = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
-            val houseNum = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
-            locations.add("$street, $houseNum")
-        }
-        cursor.close()
+        val readings = repository.getSavedReadings()
+        val locations = readings.map { "${it.streetname}, ${it.housenumber}" }.distinct()
         return locations
     }
 }
