@@ -25,9 +25,9 @@ class SaveReadingActivity : AppCompatActivity() {
         txtLastReading.text = "Last Reading: $lastReading"
 
         // Dummy data for spinners
-        val locations = listOf("Home", "Office", "Outdoor")
-        val categories = listOf("Noise", "Music", "Traffic")
-        val timestamps = listOf("10:00 AM", "12:30 PM", "6:45 PM")
+        val locations = listOf("korte helster 114", "velperweg 74", "vulkanstase 12")
+        val categories = listOf("party noise", "car noise", "other")
+        val timestamps = listOf("morning", "afternoon", "evening", "night")
 
         spinnerLocation.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locations)
         spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
