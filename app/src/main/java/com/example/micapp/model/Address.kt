@@ -1,4 +1,3 @@
-// Address.kt
 package com.example.micapp.model
 
 data class Address(

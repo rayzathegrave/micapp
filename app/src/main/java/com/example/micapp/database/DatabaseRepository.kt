@@ -52,8 +52,8 @@ class DatabaseRepository(context: Context) {
         return categories
     }
 
-    fun getLocations(): List<Address> {
-        val locations = mutableListOf<Address>()
+    fun getLocations(): List<String> {
+        val locations = mutableListOf<String>()
         val cursor: Cursor = db.query(
             DatabaseHelper.TABLE_ADD_ADRES,
             arrayOf("streetname", "housenumber"),
@@ -62,7 +62,7 @@ class DatabaseRepository(context: Context) {
         while (cursor.moveToNext()) {
             val street = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
             val houseNum = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
-            locations.add(Address(street, houseNum))
+            locations.add("$street, $houseNum")
         }
         cursor.close()
         return locations
@@ -70,7 +70,12 @@ class DatabaseRepository(context: Context) {
 
     fun getSavedReadings(): List<Reading> {
         val readings = mutableListOf<Reading>()
-        val cursor: Cursor = db.query(DatabaseHelper.TABLE_SAVED_READING, null, null, null, null, null, null)
+        val cursor: Cursor = db.query(
+            DatabaseHelper.TABLE_SAVED_READING,
+            arrayOf("decibel", "category", "streetname", "housenumber", "timestamp"),
+            null, null, null, null, null
+        )
+
         while (cursor.moveToNext()) {
             val decibel = cursor.getInt(cursor.getColumnIndexOrThrow("decibel"))
             val category = cursor.getString(cursor.getColumnIndexOrThrow("category"))

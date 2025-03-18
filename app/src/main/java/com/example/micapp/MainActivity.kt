@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 
 import com.example.micapp.ui.SaveReadingActivity
 import com.example.micapp.ui.CustomizeActivity
+import com.example.micapp.ui.ViewReadingsActivity
 import com.example.micapp.viewmodel.AudioRecorderViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -25,58 +26,65 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSaveReading: Button
     private lateinit var btnCustomize: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_main)
 
-        btnStart = findViewById(R.id.btn_start)
-        btnStop = findViewById(R.id.btn_stop)
-        txtStatus = findViewById(R.id.txt_status)
-        txtDecibel = findViewById(R.id.txt_decibel)
-        btnSaveReading = findViewById(R.id.btn_save_reading)
-        btnCustomize = findViewById(R.id.btn_customize)
+            btnStart = findViewById(R.id.btn_start)
+            btnStop = findViewById(R.id.btn_stop)
+            txtStatus = findViewById(R.id.txt_status)
+            txtDecibel = findViewById(R.id.txt_decibel)
+            btnSaveReading = findViewById(R.id.btn_save_reading)
+            btnCustomize = findViewById(R.id.btn_customize)
+            val btnViewReadings: Button = findViewById(R.id.btn_view_readings)
 
-        requestPermissions()
+            requestPermissions()
 
-        // Initialize database
-        viewModel.initDatabase(this)
+            // Initialize database
+            viewModel.initDatabase(this)
 
-        // Observe LiveData from ViewModel
-        viewModel.isRecording.observe(this, Observer { isRecording ->
-            if (isRecording) {
-                txtStatus.text = "Recording..."
-                btnStart.visibility = Button.GONE
-                btnStop.visibility = Button.VISIBLE
-            } else {
-                txtStatus.text = "Press Start to Record"
-                btnStart.visibility = Button.VISIBLE
-                btnStop.visibility = Button.GONE
+            // Observe LiveData from ViewModel
+            viewModel.isRecording.observe(this, Observer { isRecording ->
+                if (isRecording) {
+                    txtStatus.text = "Recording..."
+                    btnStart.visibility = Button.GONE
+                    btnStop.visibility = Button.VISIBLE
+                } else {
+                    txtStatus.text = "Press Start to Record"
+                    btnStart.visibility = Button.VISIBLE
+                    btnStop.visibility = Button.GONE
+                }
+            })
+
+            viewModel.decibelLevel.observe(this, Observer { decibel ->
+                txtDecibel.text = "Decibel Level: ${decibel.toInt()} dB"
+            })
+
+            btnStart.setOnClickListener { viewModel.startRecording(this) }
+            btnStop.setOnClickListener { viewModel.stopRecording() }
+
+            // Navigate to SaveReadingActivity
+            btnSaveReading.setOnClickListener {
+                val intent = Intent(this, SaveReadingActivity::class.java)
+                intent.putExtra(
+                    "DECIBEL_READING",
+                    txtDecibel.text.toString()
+                ) // Pass the current decibel level
+                startActivity(intent)
             }
-        })
 
-        viewModel.decibelLevel.observe(this, Observer { decibel ->
-            txtDecibel.text = "Decibel Level: ${decibel.toInt()} dB"
-        })
+            // Navigate to CustomizeActivity
+            btnCustomize.setOnClickListener {
+                val intent = Intent(this, CustomizeActivity::class.java)
+                startActivity(intent)
+            }
 
-        btnStart.setOnClickListener { viewModel.startRecording(this) }
-        btnStop.setOnClickListener { viewModel.stopRecording() }
-
-        // Navigate to SaveReadingActivity
-        btnSaveReading.setOnClickListener {
-            val intent = Intent(this, SaveReadingActivity::class.java)
-            intent.putExtra(
-                "DECIBEL_READING",
-                txtDecibel.text.toString()
-            ) // Pass the current decibel level
-            startActivity(intent)
+            // Navigate to ViewReadingsActivity
+            btnViewReadings.setOnClickListener {
+                val intent = Intent(this, ViewReadingsActivity::class.java)
+                startActivity(intent)
+            }
         }
-
-        // Navigate to CustomizeActivity
-        btnCustomize.setOnClickListener {
-            val intent = Intent(this, CustomizeActivity::class.java)
-            startActivity(intent)
-        }
-    }
 
     private fun requestPermissions() {
         val permissions = arrayOf(

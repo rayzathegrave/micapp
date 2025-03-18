@@ -33,6 +33,11 @@ class CustomizeActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (newStreetName.isNotEmpty() && !newStreetName.matches(Regex("^[a-zA-Z\\s]+$"))) {
+                Toast.makeText(this, "Street name must contain only letters and spaces", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (newCategory.isNotEmpty()) {
                 viewModel.addCategory(newCategory)
             }

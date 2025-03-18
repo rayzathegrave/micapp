@@ -45,7 +45,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val CREATE_TABLE_SAVED_READING = """
     CREATE TABLE $TABLE_SAVED_READING (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        decibel INT NOT NULL,
+        decibel INTEGER NOT NULL,
         category VARCHAR(75),
         streetname VARCHAR(250),
         housenumber INT,

@@ -1,4 +1,3 @@
-// Reading.kt
 package com.example.micapp.model
 
 data class Reading(

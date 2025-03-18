@@ -31,6 +31,8 @@
 
         <activity android:name="com.example.micapp.ui.SaveReadingActivity" />
         <activity android:name="com.example.micapp.ui.CustomizeActivity" />
+        <activity android:name="com.example.micapp.ui.ViewReadingsActivity"/>
+
 
 
     </application>

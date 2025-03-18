@@ -27,9 +27,9 @@ class SaveReadingActivity : AppCompatActivity() {
         txtLastReading.text = "Last Reading: $lastReading"
 
         // Fetch data from database
-        val locations = repository.getLocations().map { "${it.streetname} ${it.housenumber}" }
+        val locations = repository.getLocations()
         val categories = repository.getCategories().map { it.category }
-        val timestamps = listOf("morning", "afternoon", "evening", "night") // Assuming timestamps are still hardcoded
+        val timestamps = listOf("morning", "afternoon", "evening", "night")
 
         spinnerLocation.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locations)
         spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
@@ -40,18 +40,30 @@ class SaveReadingActivity : AppCompatActivity() {
             val selectedCategory = spinnerCategory.selectedItem.toString()
             val selectedTimestamp = spinnerTimestamp.selectedItem.toString()
 
-            val (streetname, housenumber) = selectedLocation.split(" ").let {
-                it[0] to it[1].toInt()
+            val locationParts = selectedLocation.split(", ")
+            if (locationParts.size < 2) {
+                Toast.makeText(this, "Invalid location format", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
-            // Extract integer from lastReading
+            val streetname = locationParts[0]
+            if (!streetname.matches(Regex("^[a-zA-Z\\s]+$"))) {
+                Toast.makeText(this, "Street name must contain only letters and spaces", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val housenumber = locationParts[1].toIntOrNull()
+            if (housenumber == null) {
+                Toast.makeText(this, "Invalid house number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val decibelReading = lastReading.filter { it.isDigit() }.toIntOrNull()
             if (decibelReading == null) {
                 Toast.makeText(this, "Invalid decibel reading", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Create Reading object
             val reading = Reading(
                 decibel = decibelReading,
                 category = selectedCategory,
@@ -60,9 +72,7 @@ class SaveReadingActivity : AppCompatActivity() {
                 timestamp = selectedTimestamp
             )
 
-            // Save reading to database
             repository.insertSavedReading(reading)
-
             Toast.makeText(this, "Saved: $selectedLocation, $selectedCategory, $selectedTimestamp", Toast.LENGTH_SHORT).show()
         }
     }
