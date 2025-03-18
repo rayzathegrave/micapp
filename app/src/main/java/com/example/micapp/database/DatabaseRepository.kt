@@ -31,6 +31,15 @@ class DatabaseRepository(context: Context) {
         db.insert(DatabaseHelper.TABLE_ADD_ADRES, null, values)
     }
 
+    fun deleteCategory(category: String) {
+        db.delete(DatabaseHelper.TABLE_ADD_CATEGORY, "category = ?", arrayOf(category))
+    }
+
+    fun deleteAddress(streetname: String, housenumber: Int) {
+        db.delete(DatabaseHelper.TABLE_ADD_ADRES, "streetname = ? AND housenumber = ?", arrayOf(streetname, housenumber.toString()))
+    }
+
+
     fun insertSavedReading(reading: Reading) {
         val values = ContentValues().apply {
             put("decibel", reading.decibel)

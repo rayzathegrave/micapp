@@ -57,6 +57,13 @@
         android:text="View Readings"
         android:layout_marginTop="20dp"/>
 
+    <Button
+        android:id="@+id/btn_view_addresses_categories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Addresses and Categories"
+        android:layout_marginTop="20dp"/>
+
 
 </LinearLayout>
 
