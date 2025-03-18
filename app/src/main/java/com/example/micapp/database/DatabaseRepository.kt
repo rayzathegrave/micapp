@@ -19,6 +19,10 @@ class DatabaseRepository(context: Context) {
         db.insert(DatabaseHelper.TABLE_ADD_CATEGORY, null, values)
     }
 
+    fun deleteReading(id: Long) {
+        db.delete(DatabaseHelper.TABLE_SAVED_READING, "id = ?", arrayOf(id.toString()))
+    }
+
     fun insertAddress(streetname: String, housenumber: Int) {
         val values = ContentValues().apply {
             put("streetname", streetname)
@@ -68,21 +72,22 @@ class DatabaseRepository(context: Context) {
         return locations
     }
 
-    fun getSavedReadings(): List<Reading> {
+   fun getSavedReadings(): List<Reading> {
         val readings = mutableListOf<Reading>()
         val cursor: Cursor = db.query(
             DatabaseHelper.TABLE_SAVED_READING,
-            arrayOf("decibel", "category", "streetname", "housenumber", "timestamp"),
+            arrayOf("id", "decibel", "category", "streetname", "housenumber", "timestamp"), // Include "id"
             null, null, null, null, null
         )
 
         while (cursor.moveToNext()) {
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow("id")) // Add this line
             val decibel = cursor.getInt(cursor.getColumnIndexOrThrow("decibel"))
             val category = cursor.getString(cursor.getColumnIndexOrThrow("category"))
             val streetname = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
             val housenumber = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
             val timestamp = cursor.getString(cursor.getColumnIndexOrThrow("timestamp"))
-            readings.add(Reading(decibel, category, streetname, housenumber, timestamp))
+            readings.add(Reading(id, decibel, category, streetname, housenumber, timestamp)) // Include "id"
         }
         cursor.close()
         return readings
