@@ -81,6 +81,8 @@ class DatabaseRepository(context: Context) {
         return locations
     }
 
+
+
    fun getSavedReadings(): List<Reading> {
         val readings = mutableListOf<Reading>()
         val cursor: Cursor = db.query(
