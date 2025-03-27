@@ -4,8 +4,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.example.micapp.model.Category
 import com.example.micapp.model.Address
+import com.example.micapp.model.Category
 import com.example.micapp.model.Reading
 
 class DatabaseRepository(context: Context) {
@@ -23,10 +23,10 @@ class DatabaseRepository(context: Context) {
         db.delete(DatabaseHelper.TABLE_SAVED_READING, "id = ?", arrayOf(id.toString()))
     }
 
-    fun insertAddress(streetname: String, housenumber: Int) {
+    fun insertAddress(address: Address) {
         val values = ContentValues().apply {
-            put("streetname", streetname)
-            put("housenumber", housenumber)
+            put("streetname", address.streetname)
+            put("housenumber", address.housenumber)
         }
         db.insert(DatabaseHelper.TABLE_ADD_ADRES, null, values)
     }
@@ -35,10 +35,9 @@ class DatabaseRepository(context: Context) {
         db.delete(DatabaseHelper.TABLE_ADD_CATEGORY, "category = ?", arrayOf(category))
     }
 
-    fun deleteAddress(streetname: String, housenumber: Int) {
-        db.delete(DatabaseHelper.TABLE_ADD_ADRES, "streetname = ? AND housenumber = ?", arrayOf(streetname, housenumber.toString()))
+    fun deleteAddress(address: Address) {
+        db.delete(DatabaseHelper.TABLE_ADD_ADRES, "streetname = ? AND housenumber = ?", arrayOf(address.streetname, address.housenumber.toString()))
     }
-
 
     fun insertSavedReading(reading: Reading) {
         val values = ContentValues().apply {
@@ -65,40 +64,38 @@ class DatabaseRepository(context: Context) {
         return categories
     }
 
-    fun getLocations(): List<String> {
-        val locations = mutableListOf<String>()
+    fun getAddresses(): List<Address> {
+        val addresses = mutableListOf<Address>()
         val cursor: Cursor = db.query(
             DatabaseHelper.TABLE_ADD_ADRES,
             arrayOf("streetname", "housenumber"),
             null, null, null, null, null
         )
         while (cursor.moveToNext()) {
-            val street = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
-            val houseNum = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
-            locations.add("$street, $houseNum")
+            val streetname = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
+            val housenumber = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
+            addresses.add(Address(streetname, housenumber))
         }
         cursor.close()
-        return locations
+        return addresses
     }
 
-
-
-   fun getSavedReadings(): List<Reading> {
+    fun getSavedReadings(): List<Reading> {
         val readings = mutableListOf<Reading>()
         val cursor: Cursor = db.query(
             DatabaseHelper.TABLE_SAVED_READING,
-            arrayOf("id", "decibel", "category", "streetname", "housenumber", "timestamp"), // Include "id"
+            arrayOf("id", "decibel", "category", "streetname", "housenumber", "timestamp"),
             null, null, null, null, null
         )
 
         while (cursor.moveToNext()) {
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow("id")) // Add this line
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
             val decibel = cursor.getInt(cursor.getColumnIndexOrThrow("decibel"))
             val category = cursor.getString(cursor.getColumnIndexOrThrow("category"))
             val streetname = cursor.getString(cursor.getColumnIndexOrThrow("streetname"))
             val housenumber = cursor.getInt(cursor.getColumnIndexOrThrow("housenumber"))
             val timestamp = cursor.getString(cursor.getColumnIndexOrThrow("timestamp"))
-            readings.add(Reading(id, decibel, category, streetname, housenumber, timestamp)) // Include "id"
+            readings.add(Reading(id, decibel, category, streetname, housenumber, timestamp))
         }
         cursor.close()
         return readings

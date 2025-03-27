@@ -3,6 +3,7 @@ package com.example.micapp.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.micapp.database.DatabaseRepository
+import com.example.micapp.model.Address
 
 class CustomizeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -12,8 +13,8 @@ class CustomizeViewModel(application: Application) : AndroidViewModel(applicatio
         repository.insertCategory(newCategory)
     }
 
-    fun addLocation(streetName: String, houseNumber: Int) {
-        repository.insertAddress(streetName, houseNumber)
+    fun addLocation(address: Address) {
+        repository.insertAddress(address)
     }
 
     fun getCategories(): List<String> {
@@ -22,9 +23,7 @@ class CustomizeViewModel(application: Application) : AndroidViewModel(applicatio
         return categories
     }
 
-    fun getLocations(): List<String> {
-        val readings = repository.getSavedReadings()
-        val locations = readings.map { "${it.streetname}, ${it.housenumber}" }.distinct()
-        return locations
+    fun getLocations(): List<Address> {
+        return repository.getAddresses()
     }
 }

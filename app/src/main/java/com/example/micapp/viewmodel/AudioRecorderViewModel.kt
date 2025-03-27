@@ -13,6 +13,7 @@ package com.example.micapp.viewmodel
  import androidx.lifecycle.MutableLiveData
  import androidx.lifecycle.ViewModel
  import com.example.micapp.database.DatabaseRepository
+ import com.example.micapp.model.Address
  import com.example.micapp.model.Reading
  import java.io.File
  import kotlin.math.log10
@@ -36,12 +37,12 @@ package com.example.micapp.viewmodel
          dbRepository = DatabaseRepository(context)
      }
 
-     fun saveReading(decibel: Int, category: String, streetname: String, housenumber: Int, timestamp: String) {
+     fun saveReading(decibel: Int, category: String, address: Address, timestamp: String) {
          val reading = Reading(
              decibel = decibel,
              category = category,
-             streetname = streetname,
-             housenumber = housenumber,
+             streetname = address.streetname,
+             housenumber = address.housenumber,
              timestamp = timestamp
          )
          dbRepository?.insertSavedReading(reading)
@@ -51,8 +52,8 @@ package com.example.micapp.viewmodel
          dbRepository?.insertCategory(category)
      }
 
-     fun addAddress(streetname: String, housenumber: Int) {
-         dbRepository?.insertAddress(streetname, housenumber)
+     fun addAddress(address: Address) {
+         dbRepository?.insertAddress(address)
      }
 
      fun startRecording(context: Context) {

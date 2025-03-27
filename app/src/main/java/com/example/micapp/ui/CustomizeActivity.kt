@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micapp.viewmodel.CustomizeViewModel
 import com.example.micapp.R
+import com.example.micapp.model.Address
 
 class CustomizeActivity : AppCompatActivity() {
 
@@ -48,7 +49,8 @@ class CustomizeActivity : AppCompatActivity() {
                     Toast.makeText(this, "House number must be a valid number", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-                viewModel.addLocation(newStreetName, houseNumber)
+                val address = Address(newStreetName, houseNumber)
+                viewModel.addLocation(address)
             }
 
             Toast.makeText(this, "Saved: $newCategory, $newStreetName, $houseNumberText", Toast.LENGTH_SHORT).show()

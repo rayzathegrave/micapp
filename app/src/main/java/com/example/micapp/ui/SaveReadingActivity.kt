@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micapp.R
 import com.example.micapp.database.DatabaseRepository
+import com.example.micapp.model.Address
 import com.example.micapp.model.Reading
 
 class SaveReadingActivity : AppCompatActivity() {
@@ -27,11 +28,11 @@ class SaveReadingActivity : AppCompatActivity() {
         txtLastReading.text = "Last Reading: $lastReading"
 
         // Fetch data from database
-        val locations = repository.getLocations()
+        val addresses = repository.getAddresses().map { "${it.streetname}, ${it.housenumber}" }
         val categories = repository.getCategories().map { it.category }
         val timestamps = listOf("morning", "afternoon", "evening", "night")
 
-        spinnerLocation.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locations)
+        spinnerLocation.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, addresses)
         spinnerCategory.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
         spinnerTimestamp.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, timestamps)
 

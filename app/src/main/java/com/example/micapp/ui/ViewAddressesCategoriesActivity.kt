@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micapp.R
 import com.example.micapp.database.DatabaseRepository
+import com.example.micapp.model.Address
 
 class ViewAddressesCategoriesActivity : AppCompatActivity() {
 
@@ -32,23 +33,16 @@ class ViewAddressesCategoriesActivity : AppCompatActivity() {
     }
 
     private fun loadAddresses() {
-        val addresses = repository.getLocations()
-        val adapter = object : ArrayAdapter<String>(this, R.layout.list_item_address_category, R.id.txt_item, addresses) {
+        val addresses = repository.getAddresses()
+        val adapter = object : ArrayAdapter<Address>(this, R.layout.list_item_address_category, R.id.txt_item, addresses) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
                 val deleteButton: Button = view.findViewById(R.id.btn_delete)
                 deleteButton.setOnClickListener {
                     val address = addresses[position]
-                    val parts = address.split(", ")
-                    if (parts.size == 2) {
-                        val streetname = parts[0]
-                        val housenumber = parts[1].toIntOrNull()
-                        if (housenumber != null) {
-                            repository.deleteAddress(streetname, housenumber)
-                            Toast.makeText(this@ViewAddressesCategoriesActivity, "Address deleted", Toast.LENGTH_SHORT).show()
-                            loadAddresses()
-                        }
-                    }
+                    repository.deleteAddress(address)
+                    Toast.makeText(this@ViewAddressesCategoriesActivity, "Address deleted", Toast.LENGTH_SHORT).show()
+                    loadAddresses()
                 }
                 return view
             }
