@@ -31,7 +31,7 @@ class ViewReadingsActivity : AppCompatActivity() {
         readings = repository.getSavedReadings().map {
             mapOf(
                 "id" to it.id.toString(),
-                "decibel" to it.decibel.toString(),
+                "decibel" to "${it.decibel} dB",
                 "category" to it.category,
                 "streetname" to it.streetname,
                 "housenumber" to it.housenumber.toString(),

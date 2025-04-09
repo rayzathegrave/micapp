@@ -17,13 +17,4 @@ class CustomizeViewModel(application: Application) : AndroidViewModel(applicatio
         repository.insertAddress(address)
     }
 
-    fun getCategories(): List<String> {
-        val readings = repository.getSavedReadings()
-        val categories = readings.map { it.category }.distinct()
-        return categories
-    }
-
-    fun getLocations(): List<Address> {
-        return repository.getAddresses()
-    }
 }
